@@ -1,4 +1,5 @@
 import express from "express";
+import { getFeed } from "./parser";
 
 let app = express();
 let port = process.env.PORT || 3000;
@@ -10,9 +11,29 @@ app.use((_req, res, next) => {
   next();
 });
 
-app.get("/", (req, res) => {
-  console.log("query", req.query);
-  res.send("Hello world");
+app.get("/", async (req, res) => {
+  let url: string | undefined = req.query["url"] as string;
+  if (!url) {
+    res.statusCode = 500;
+    res.send(
+      JSON.stringify({
+        error: "URL is required",
+      })
+    );
+    return;
+  }
+  try {
+    let feed = await getFeed(url);
+    res.type("json");
+    res.send(JSON.stringify(feed));
+  } catch (error) {
+    res.statusCode = 500;
+    res.send(
+      JSON.stringify({
+        error: error.toString(),
+      })
+    );
+  }
 });
 
 app.listen(port, () => {
