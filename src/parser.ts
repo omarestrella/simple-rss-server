@@ -25,7 +25,7 @@ export async function getFeed(url: string): Promise<Feed> {
   let title = feed.title || "";
   let description = feed.description || "";
   let link = feed.link || undefined;
-  let imageUrl = feed.image?.url;
+  let imageUrl = !!feed.image ? feed.image.url : undefined;
   let items = feed.items.map((item) => {
     return {
       id: item.id || uuid(),
