@@ -1,4 +1,5 @@
 import express from "express";
+import { getReadableFeedItem } from "./feed-item";
 import { getFeed } from "./parser";
 
 let app = express();
@@ -26,6 +27,31 @@ app.get("/", async (req, res) => {
     let feed = await getFeed(url);
     res.type("json");
     res.send(JSON.stringify(feed));
+  } catch (error) {
+    res.statusCode = 500;
+    res.send(
+      JSON.stringify({
+        error: error.toString(),
+      })
+    );
+  }
+});
+
+app.get("/item", async (req, res) => {
+  let url: string | undefined = req.query["url"] as string;
+  if (!url) {
+    res.statusCode = 500;
+    res.send(
+      JSON.stringify({
+        error: "URL is required",
+      })
+    );
+    return;
+  }
+  try {
+    let item = await getReadableFeedItem(url);
+    res.type("json");
+    res.send(JSON.stringify(item));
   } catch (error) {
     res.statusCode = 500;
     res.send(
